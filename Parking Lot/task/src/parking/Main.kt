@@ -66,49 +66,54 @@ class ParkingLot(size: Int) {
     }
 }
 
-class Command {
+abstract class Command {
 
-    fun executeParkCommand(
+    open abstract fun executeParkCommand(
         parkingLot: ParkingLot?,
         tokens: List<String>
-    ) = when (getCommandType(tokens)) {
-        "park" -> {
-            val commandResult = parkingLot?.park(tokens[1], tokens[2]) ?: getMessageNotCreated()
-            println(commandResult)
-            parkingLot
-        }
-        "leave" -> {
-            val commandResult = parkingLot?.leave(tokens[1].toInt()) ?: getMessageNotCreated()
-            println(commandResult)
-            parkingLot
-        }
-        "create" -> {
-            val res = ParkingLot(tokens[1].toInt())
-            val commandResult = "Created a parking lot with ${tokens[1]} spots."
-            println(commandResult)
-            res
-        }
-
-        "status" -> {
-            val commandResult = parkingLot?.getStatus() ?: getMessageNotCreated()
-            println(commandResult)
-            parkingLot
-        }
-        else ->  {
-            throw Exception("Unknown Command")
-        }
-    }
+    ) : ParkingLot?
 
     fun getMessageNotCreated() = "Sorry, a parking lot has not been created."
 }
 
+class ParkCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        val commandResult = parkingLot?.park(tokens[1], tokens[2]) ?: getMessageNotCreated()
+        println(commandResult)
+        return parkingLot
+    }
+}
+
+class LeaveCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        val commandResult = parkingLot?.leave(tokens[1].toInt()) ?: getMessageNotCreated()
+        println(commandResult)
+        return parkingLot
+    }
+}
+
+class CreateCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        val res = ParkingLot(tokens[1].toInt())
+        val commandResult = "Created a parking lot with ${tokens[1]} spots."
+        println(commandResult)
+        return res
+    }
+}
+
+class StatusCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        val commandResult = parkingLot?.getStatus() ?: getMessageNotCreated()
+        println(commandResult)
+        return parkingLot
+    }
+}
 
 fun getCommandType(tokens: List<String>) = tokens[0]
 
 class ParkingManager {
 
     private var parkingLot: ParkingLot? = null
-    private var parkCommand = Command()
 
     fun startParking() {
         val scanner = Scanner(System.`in`)
@@ -118,7 +123,8 @@ class ParkingManager {
 
         var keepOn = getCommandType(tokens) != "exit"
         while (keepOn) {
-            parkingLot = parkCommand.executeParkCommand(parkingLot, tokens)
+            val xCommand = getCommand(getCommandType(tokens))
+            parkingLot = xCommand.executeParkCommand(parkingLot, tokens)
 
             input = scanner.nextLine()!!
             tokens = input.split(" ")
@@ -126,6 +132,14 @@ class ParkingManager {
         }
     }
 
+    private fun getCommand(type: String) =
+        when (type) {
+            "park" -> ParkCommand()
+            "leave" -> LeaveCommand()
+            "create" -> CreateCommand()
+            "status" -> StatusCommand()
+            else -> throw Exception("Unknown Command")
+        }
 }
 
 fun main() {
