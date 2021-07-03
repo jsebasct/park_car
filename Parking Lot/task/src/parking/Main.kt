@@ -66,9 +66,48 @@ class ParkingLot(size: Int) {
     }
 }
 
+class ParkCommand() {
+
+    public fun executeParkCommand(
+        parkingLot: ParkingLot?,
+        tokens: List<String>,
+        msgNotCreated: String
+    ) = when (getCommandType(tokens)) {
+        "park" -> {
+            val commandResult = parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
+            println(commandResult)
+            parkingLot
+        }
+        "leave" -> {
+            val commandResult = parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
+            println(commandResult)
+            parkingLot
+        }
+        "create" -> {
+            val res = ParkingLot(tokens[1].toInt())
+            val commandResult = "Created a parking lot with ${tokens[1]} spots."
+            println(commandResult)
+            res
+        }
+
+        "status" -> {
+            val commandResult = parkingLot?.getStatus() ?: msgNotCreated
+            println(commandResult)
+            parkingLot
+        }
+        else ->  {
+            throw Exception("Unknown Command")
+        }
+    }
+
+}
+
+fun getCommandType(tokens: List<String>) = tokens[0]
+
 class ParkingManager {
 
-    var parkingLot: ParkingLot? = null
+    private var parkingLot: ParkingLot? = null
+    private var parkCommand = ParkCommand()
 
     fun startParking() {
         val msgNotCreated = "Sorry, a parking lot has not been created."
@@ -77,37 +116,16 @@ class ParkingManager {
         var input = scanner.nextLine()!!
         var tokens = input.split(" ")
 
-        var keepOn = tokens[0] != "exit"
+        var keepOn = getCommandType(tokens) != "exit"
         while (keepOn) {
-            val commandResult = executeParkCommand(tokens, msgNotCreated)
-            println(commandResult)
+            parkingLot = parkCommand.executeParkCommand(parkingLot, tokens, msgNotCreated)
 
             input = scanner.nextLine()!!
             tokens = input.split(" ")
-            keepOn = tokens[0] != "exit"
+            keepOn = getCommandType(tokens) != "exit"
         }
     }
 
-    private fun executeParkCommand(
-        tokens: List<String>,
-        msgNotCreated: String
-    ) = when (tokens[0]) {
-        "park" -> {
-            parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
-        }
-        "leave" -> {
-            parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
-        }
-        "create" -> {
-            parkingLot = ParkingLot(tokens[1].toInt())
-            "Created a parking lot with ${tokens[1]} spots."
-        }
-
-        "status" -> {
-            parkingLot?.getStatus() ?: msgNotCreated
-        }
-        else -> throw Exception("Unknown Command")
-    }
 }
 
 fun main() {
