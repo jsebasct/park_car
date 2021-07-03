@@ -64,6 +64,34 @@ class ParkingLot(size: Int) {
             res.dropLast(1)
         }
     }
+
+    fun registeredByColor(color: String): List<String> {
+        return parkingLots
+            .filter { it.taken && it.car!!.color.equals(color, ignoreCase = true) }
+            .map { it.car!!.registrationNumber }
+    }
+
+    fun spotByColor(color: String): MutableList<Int> {
+        val res = mutableListOf<Int>()
+        parkingLots.forEachIndexed { index, parkLot ->
+            if (parkLot.taken
+                && parkLot.car!!.color.equals(color, ignoreCase = true)) {
+                res.add(index+1)
+            }
+        }
+        return res
+    }
+
+    fun spotByRegistrationNumber(regNumber: String): Int {
+        var res = -1
+        parkingLots.forEachIndexed { index, parkLot ->
+            if (parkLot.taken
+                && parkLot.car!!.registrationNumber.equals(regNumber, ignoreCase = true)) {
+                res = index+1
+            }
+        }
+        return res
+    }
 }
 
 abstract class Command {
@@ -109,6 +137,57 @@ class StatusCommand: Command() {
     }
 }
 
+class RegisterByNumberCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        if (parkingLot == null) {
+            println(getMessageNotCreated())
+        } else {
+            val registrationNumbers = parkingLot.registeredByColor(tokens[1])
+            if (registrationNumbers.isEmpty()) {
+                println("No cars with color ${tokens[1]} were found.")
+            } else {
+                println(registrationNumbers.joinToString())
+            }
+        }
+
+        return parkingLot
+    }
+}
+
+class SpotByColorCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        if (parkingLot == null) {
+            println(getMessageNotCreated())
+        } else {
+            val spotByColors = parkingLot.spotByColor(tokens[1])
+            if (spotByColors.isEmpty()) {
+                println("No cars with color ${tokens[1]} were found.")
+            } else {
+                println(spotByColors.joinToString())
+            }
+        }
+
+        return parkingLot
+    }
+}
+
+class SpotByRegistrationCommand: Command() {
+    override fun executeParkCommand(parkingLot: ParkingLot?, tokens: List<String>): ParkingLot? {
+        if (parkingLot == null) {
+            println(getMessageNotCreated())
+        } else {
+            val spotByRegNumber = parkingLot.spotByRegistrationNumber(tokens[1])
+            if (spotByRegNumber == -1) {
+                println("No cars with registration number ${tokens[1]} were found.")
+            } else {
+                println(spotByRegNumber)
+            }
+        }
+
+        return parkingLot
+    }
+}
+
 fun getCommandType(tokens: List<String>) = tokens[0]
 
 class ParkingManager {
@@ -138,6 +217,9 @@ class ParkingManager {
             "leave" -> LeaveCommand()
             "create" -> CreateCommand()
             "status" -> StatusCommand()
+            "reg_by_color" -> RegisterByNumberCommand()
+            "spot_by_color" -> SpotByColorCommand()
+            "spot_by_reg" -> SpotByRegistrationCommand()
             else -> throw Exception("Unknown Command")
         }
 }
