@@ -52,7 +52,7 @@ class ParkingLot(size: Int) {
     }
 
     fun getStatus(): String {
-        return if (parkingLots.all { !it.taken }) "Parking lot is empty.\n"
+        return if (parkingLots.all { !it.taken }) "Parking lot is empty."
         else {
             
             var res = ""
@@ -61,7 +61,7 @@ class ParkingLot(size: Int) {
                     res += "${index+1} $parkLot\n"
                 }
             }
-            res
+            res.dropLast(1)
         }
     }
 }
@@ -75,26 +75,26 @@ fun main() {
     var tokens = input.split(" ")
 
     var keepOn = tokens[0] != "exit"
-    while(keepOn) {
-        when ( tokens[0] ) {
+    while (keepOn) {
+        val commandResult = when (tokens[0]) {
             "park" -> {
-                val res = parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
-                println(res)
+                parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
             }
             "leave" -> {
-                val res = parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
-                println(res)
+                parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
             }
             "create" -> {
                 parkingLot = ParkingLot(tokens[1].toInt())
-                println("Created a parking lot with ${tokens[1]} spots.")
+                "Created a parking lot with ${tokens[1]} spots."
             }
 
             "status" -> {
-                val res = parkingLot?.getStatus() ?: msgNotCreated
-                print(res)
+                parkingLot?.getStatus() ?: msgNotCreated
             }
+            else -> throw Exception("Unknown Command")
         }
+
+        println(commandResult)
 
         input = scanner.nextLine()!!
         tokens = input.split(" ")
