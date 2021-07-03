@@ -66,10 +66,12 @@ class ParkingLot(size: Int) {
     }
 }
 
-class Program {
-    fun execute() {
+class ParkingManager {
+
+    var parkingLot: ParkingLot? = null
+
+    fun startParking() {
         val msgNotCreated = "Sorry, a parking lot has not been created."
-        var parkingLot: ParkingLot? = null//ParkingLot(20)
         val scanner = Scanner(System.`in`)
 
         var input = scanner.nextLine()!!
@@ -77,24 +79,7 @@ class Program {
 
         var keepOn = tokens[0] != "exit"
         while (keepOn) {
-            val commandResult = when (tokens[0]) {
-                "park" -> {
-                    parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
-                }
-                "leave" -> {
-                    parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
-                }
-                "create" -> {
-                    parkingLot = ParkingLot(tokens[1].toInt())
-                    "Created a parking lot with ${tokens[1]} spots."
-                }
-
-                "status" -> {
-                    parkingLot?.getStatus() ?: msgNotCreated
-                }
-                else -> throw Exception("Unknown Command")
-            }
-
+            val commandResult = executeParkCommand(tokens, msgNotCreated)
             println(commandResult)
 
             input = scanner.nextLine()!!
@@ -102,9 +87,30 @@ class Program {
             keepOn = tokens[0] != "exit"
         }
     }
+
+    private fun executeParkCommand(
+        tokens: List<String>,
+        msgNotCreated: String
+    ) = when (tokens[0]) {
+        "park" -> {
+            parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
+        }
+        "leave" -> {
+            parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
+        }
+        "create" -> {
+            parkingLot = ParkingLot(tokens[1].toInt())
+            "Created a parking lot with ${tokens[1]} spots."
+        }
+
+        "status" -> {
+            parkingLot?.getStatus() ?: msgNotCreated
+        }
+        else -> throw Exception("Unknown Command")
+    }
 }
 
 fun main() {
-    val p = Program()
-    p.execute()
+    val p = ParkingManager()
+    p.startParking()
 }
