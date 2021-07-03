@@ -66,20 +66,19 @@ class ParkingLot(size: Int) {
     }
 }
 
-class ParkCommand() {
+class Command {
 
-    public fun executeParkCommand(
+    fun executeParkCommand(
         parkingLot: ParkingLot?,
-        tokens: List<String>,
-        msgNotCreated: String
+        tokens: List<String>
     ) = when (getCommandType(tokens)) {
         "park" -> {
-            val commandResult = parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
+            val commandResult = parkingLot?.park(tokens[1], tokens[2]) ?: getMessageNotCreated()
             println(commandResult)
             parkingLot
         }
         "leave" -> {
-            val commandResult = parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
+            val commandResult = parkingLot?.leave(tokens[1].toInt()) ?: getMessageNotCreated()
             println(commandResult)
             parkingLot
         }
@@ -91,7 +90,7 @@ class ParkCommand() {
         }
 
         "status" -> {
-            val commandResult = parkingLot?.getStatus() ?: msgNotCreated
+            val commandResult = parkingLot?.getStatus() ?: getMessageNotCreated()
             println(commandResult)
             parkingLot
         }
@@ -100,17 +99,18 @@ class ParkCommand() {
         }
     }
 
+    fun getMessageNotCreated() = "Sorry, a parking lot has not been created."
 }
+
 
 fun getCommandType(tokens: List<String>) = tokens[0]
 
 class ParkingManager {
 
     private var parkingLot: ParkingLot? = null
-    private var parkCommand = ParkCommand()
+    private var parkCommand = Command()
 
     fun startParking() {
-        val msgNotCreated = "Sorry, a parking lot has not been created."
         val scanner = Scanner(System.`in`)
 
         var input = scanner.nextLine()!!
@@ -118,7 +118,7 @@ class ParkingManager {
 
         var keepOn = getCommandType(tokens) != "exit"
         while (keepOn) {
-            parkingLot = parkCommand.executeParkCommand(parkingLot, tokens, msgNotCreated)
+            parkingLot = parkCommand.executeParkCommand(parkingLot, tokens)
 
             input = scanner.nextLine()!!
             tokens = input.split(" ")
