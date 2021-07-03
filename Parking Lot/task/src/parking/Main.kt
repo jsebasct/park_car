@@ -66,39 +66,45 @@ class ParkingLot(size: Int) {
     }
 }
 
-fun main() {
-    val msgNotCreated = "Sorry, a parking lot has not been created."
-    var parkingLot: ParkingLot? = null//ParkingLot(20)
-    val scanner = Scanner(System.`in`)
+class Program {
+    fun execute() {
+        val msgNotCreated = "Sorry, a parking lot has not been created."
+        var parkingLot: ParkingLot? = null//ParkingLot(20)
+        val scanner = Scanner(System.`in`)
 
-    var input = scanner.nextLine()!!
-    var tokens = input.split(" ")
+        var input = scanner.nextLine()!!
+        var tokens = input.split(" ")
 
-    var keepOn = tokens[0] != "exit"
-    while (keepOn) {
-        val commandResult = when (tokens[0]) {
-            "park" -> {
-                parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
-            }
-            "leave" -> {
-                parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
-            }
-            "create" -> {
-                parkingLot = ParkingLot(tokens[1].toInt())
-                "Created a parking lot with ${tokens[1]} spots."
+        var keepOn = tokens[0] != "exit"
+        while (keepOn) {
+            val commandResult = when (tokens[0]) {
+                "park" -> {
+                    parkingLot?.park(tokens[1], tokens[2]) ?: msgNotCreated
+                }
+                "leave" -> {
+                    parkingLot?.leave(tokens[1].toInt()) ?: msgNotCreated
+                }
+                "create" -> {
+                    parkingLot = ParkingLot(tokens[1].toInt())
+                    "Created a parking lot with ${tokens[1]} spots."
+                }
+
+                "status" -> {
+                    parkingLot?.getStatus() ?: msgNotCreated
+                }
+                else -> throw Exception("Unknown Command")
             }
 
-            "status" -> {
-                parkingLot?.getStatus() ?: msgNotCreated
-            }
-            else -> throw Exception("Unknown Command")
+            println(commandResult)
+
+            input = scanner.nextLine()!!
+            tokens = input.split(" ")
+            keepOn = tokens[0] != "exit"
         }
-
-        println(commandResult)
-
-        input = scanner.nextLine()!!
-        tokens = input.split(" ")
-        keepOn = tokens[0] != "exit"
     }
+}
 
+fun main() {
+    val p = Program()
+    p.execute()
 }
